@@ -10,11 +10,11 @@ FetchContent_Declare(SFML
         GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(survivors main.cpp
-        engine/engine.h
-        engine/atlas.h
-        engine/all.h
-        engine/all_sf.h)
+add_executable(survivors src/main.cpp
+        src/engine/engine.h
+        src/engine/atlas.h
+        src/engine/all.h
+        src/engine/all_sf.h)
 target_link_libraries(survivors PRIVATE sfml-graphics)
 
 if (WIN32)
