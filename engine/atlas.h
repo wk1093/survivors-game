@@ -3,6 +3,7 @@
 #include "SFML/Graphics.hpp"
 #include <filesystem>
 #include <iostream>
+#include <unordered_map>
 
 
 std::vector<std::string> recurseDirectory(const char* directory, const std::string& extension = ".png") {
@@ -24,7 +25,7 @@ std::vector<std::string> recurseDirectory(const char* directory, const std::stri
 class TextureAtlas {
 private:
     sf::Texture textureAtlas;
-    std::unordered_map<std::string, sf::IntRect> textureAtlasMap;
+    std::unordered_map<std::filesystem::path, sf::IntRect> textureAtlasMap;
     const char* directory;
 
 public:
