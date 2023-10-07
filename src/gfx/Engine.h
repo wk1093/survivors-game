@@ -17,7 +17,9 @@ public:
     float dt = 0;
 
     Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory) : window(sf::VideoMode(width, height), title), atlas(imageDirectory) {
-        window.setVerticalSyncEnabled(true);
+        window.setFramerateLimit(60);
+        window.setKeyRepeatEnabled(false);
+
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         atlas.build();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -66,6 +68,18 @@ public:
 
     sf::RenderWindow &getWindow() {
         return window;
+    }
+
+    sf::View getView() {
+        return window.getView();
+    }
+
+    void setView(sf::View v) {
+        window.setView(v);
+    }
+
+    sf::Vector2f getSize() {
+        return window.getView().getSize();
     }
 
 

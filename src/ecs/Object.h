@@ -83,6 +83,26 @@ public:
         // because that would make a new sprite and lose the position and scale and rotation ...
     }
 
+    [[nodiscard]] Vector2f getPosition() const {
+        return sprite.getPosition();
+    }
+
+    [[nodiscard]] Vector2f getScale() const {
+        return sprite.getScale();
+    }
+
+    [[nodiscard]] float getRotation() const {
+        return sprite.getRotation();
+    }
+
+    [[nodiscard]] Vector2f getOrigin() const {
+        return sprite.getOrigin();
+    }
+
+    [[nodiscard]] Vector2f getSize() const {
+        return {sprite.getGlobalBounds().width, sprite.getGlobalBounds().height};
+    }
+
     virtual void update() = 0;
 
     void draw() {
