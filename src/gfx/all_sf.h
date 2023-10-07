@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "atlas.h"
-#include "engine.h"
+#include "TextureAtlas.h"
+#include "Engine.h"
 
 using namespace sf;

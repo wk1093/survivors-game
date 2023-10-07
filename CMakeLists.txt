@@ -11,12 +11,17 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_executable(survivors src/main.cpp
-        src/engine/engine.h
-        src/engine/atlas.h
-        src/engine/all.h
-        src/engine/all_sf.h
-        src/game/Entity.h
-        src/game/Object.h)
+        src/gfx/Engine.h
+        src/gfx/TextureAtlas.h
+        src/gfx/all.h
+        src/gfx/all_sf.h
+        src/ecs/Object.h
+        src/ecs/EntityComponentSystem.h
+        src/ecs/Component.h
+        src/ecs/Components.h
+        src/ecs/all.h
+        src/ecs/Objects.h
+        src/test/wasd.h)
 target_link_libraries(survivors PRIVATE sfml-graphics)
 
 if (WIN32)

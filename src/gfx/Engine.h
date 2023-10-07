@@ -1,10 +1,10 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "atlas.h"
+#include "TextureAtlas.h"
 
 /**
- * An SFML Rendering engine with texture atlas generation
+ * An SFML Rendering gfx with texture atlas generation
  */
 class Engine {
 private:
