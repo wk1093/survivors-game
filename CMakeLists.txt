@@ -14,7 +14,9 @@ add_executable(survivors src/main.cpp
         src/engine/engine.h
         src/engine/atlas.h
         src/engine/all.h
-        src/engine/all_sf.h)
+        src/engine/all_sf.h
+        src/game/Entity.h
+        src/game/Object.h)
 target_link_libraries(survivors PRIVATE sfml-graphics)
 
 if (WIN32)

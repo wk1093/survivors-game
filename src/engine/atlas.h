@@ -49,7 +49,16 @@ public:
             width += image.getSize().x;
             height = std::max(height, image.getSize().y);
         }
-
+        if (width > 16384) {
+            std::cerr << "Texture atlas width is too large" << std::endl;
+            std::cerr << "Bro, make a better algorithm" << std::endl;
+            throw std::runtime_error("Texture atlas width is too large");
+        }
+        if (height > 16384) {
+            std::cerr << "Texture atlas height is too large" << std::endl;
+            std::cerr << "Bro, make a better algorithm" << std::endl;
+            throw std::runtime_error("Texture atlas height is too large");
+        }
         atlasImage.create(width, height);
 
         unsigned int x = 0;
@@ -77,6 +86,19 @@ public:
         }
         sf::Sprite sprite(textureAtlas, textureAtlasMap[std::filesystem::path(file)]);
         return sprite;
+    }
+
+    sf::IntRect makeRect(const std::string& file) {
+        if (textureAtlasMap.find(std::filesystem::path(file)) == textureAtlasMap.end()) {
+            std::cerr << "File not found in texture atlas" << std::endl;
+            std::cerr << "Offending file: " << file << std::endl;
+            std::cerr << "Options: " << std::endl;
+            for (const auto& [key, value] : textureAtlasMap) {
+                std::cerr << key << std::endl;
+            }
+            throw std::runtime_error("File not found in texture atlas");
+        }
+        return textureAtlasMap[std::filesystem::path(file)];
     }
 
     sf::Texture& getTexture() {
