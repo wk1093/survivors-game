@@ -2,6 +2,7 @@
 
 #include "../gfx/all_sf.h"
 #include "../ecs/all.h"
+#include <functional>
 
 /*
  * convert this:
