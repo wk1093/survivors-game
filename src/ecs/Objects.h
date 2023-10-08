@@ -70,12 +70,21 @@ public:
         m_physics.addVelocity(v);
     }
 
-
-
     void update() override {
         m_physics.update();
     }
 
 
 
+};
+
+class StaticObject : public Object { // by itself, this class is the same as BasicObject, but it is used for static object collision detection
+public:
+    StaticObject(EntityComponentSystem& ecs, Engine& e, const std::string& path) : Object(e, path) { }
+
+    void update() override { }
+
+    sf::FloatRect getAABB() {
+        return sprite.getGlobalBounds();
+    }
 };

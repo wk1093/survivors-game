@@ -12,7 +12,7 @@ enum class FocusType {
 void FocusedCamera(Engine& e, PhysicsObject& obj, FocusType type) {
     sf::View view = e.getView();
     sf::Vector2f pos = obj.getPosition();
-    sf::Vector2f viewSize = e.getSize();
+    sf::Vector2f viewSize = view.getSize();
     sf::Vector2f objSize = obj.getSize();
     sf::Vector2f viewCenter = view.getCenter();
 

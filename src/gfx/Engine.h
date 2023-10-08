@@ -2,6 +2,7 @@
 
 #include "SFML/Graphics.hpp"
 #include "TextureAtlas.h"
+#include <chrono>
 
 /**
  * An SFML Rendering gfx with texture atlas generation

@@ -91,10 +91,24 @@ public:
     }
 
     void update() override {
+        auto prev = m_object.getPosition();
         m_velocity += m_acceleration*m_engine.dt;
         m_velocity *= m_friction;
         m_object.moveTA(m_velocity);
         m_acceleration *= 1.0f-m_friction;
+        auto direction = m_object.getPosition()-prev;
+
+        auto aabbs = m_ecs.getStaticObjectAABBs();
+        for (auto& aabb : aabbs) {
+            if (aabb.contains(m_object.getPosition()) || aabb.contains(m_object.getPosition()+m_object.getSize()) || aabb.contains(m_object.getPosition()+sf::Vector2f(m_object.getSize().x, 0)) || aabb.contains(m_object.getPosition()+sf::Vector2f(0, m_object.getSize().y))) {
+                m_object.move(-direction);
+                m_velocity = sf::Vector2f(0, 0);
+                m_acceleration = sf::Vector2f(0, 0);
+            }
+        }
+
+
+        // collision
 
     }
 };

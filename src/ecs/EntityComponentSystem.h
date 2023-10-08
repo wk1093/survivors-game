@@ -18,6 +18,9 @@ public:
         return *static_cast<T*>(m_objects.back().get());
     }
 
+    // return a list of AABBs of all StaticObjects in the ECS
+    std::vector<sf::FloatRect> getStaticObjectAABBs();
+
     void update() {
         for (auto& c : m_objects) {
             c->update();
