@@ -36,9 +36,10 @@ public:
         char type;
         char name[256];
         int i = 0;
+        consumeWhitespace(file);
         while (fscanf(file, "%c%s", &type, name) != EOF) {
             // consume space
-            fgetc(file);
+            consumeWhitespace(file);
             if (type == 'S') {
                 m_map.emplace_back(true, name);
             } else if (type == 'B') {
@@ -56,6 +57,16 @@ public:
             throw std::runtime_error("Map size does not match width and height");
         }
     }
+private:
+
+    static void consumeWhitespace(FILE* file) {
+        char c;
+        while ((c = fgetc(file)) == ' ' || c == '\n' || c == '\t') {
+            // consume whitespace
+        }
+        ungetc(c, file);
+    }
+public:
 
     [[nodiscard]] int getWidth() const {
         return width;

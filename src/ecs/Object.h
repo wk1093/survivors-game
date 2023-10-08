@@ -103,6 +103,26 @@ public:
         return {sprite.getGlobalBounds().width, sprite.getGlobalBounds().height};
     }
 
+    [[nodiscard]] sf::FloatRect getAABB() const {
+        return {sprite.getPosition().x, sprite.getPosition().y, sprite.getGlobalBounds().width, sprite.getGlobalBounds().height};
+    }
+
+    [[nodiscard]] sf::FloatRect getGlobalBounds() const {
+        return sprite.getGlobalBounds();
+    }
+
+    [[nodiscard]] sf::FloatRect getLocalBounds() const {
+        return sprite.getLocalBounds();
+    }
+
+    [[nodiscard]] sf::Sprite& getSprite() {
+        return sprite;
+    }
+
+    [[nodiscard]] const sf::Sprite& getSprite() const {
+        return sprite;
+    }
+
     virtual void update() = 0;
 
     void draw() {

@@ -2,6 +2,7 @@
 
 #include "../gfx/all_sf.h"
 #include <unordered_map>
+#include <cmath>
 #include "EntityComponentSystem.h"
 
 class AnimationComponent : public Component {
@@ -100,15 +101,28 @@ public:
 
         auto aabbs = m_ecs.getStaticObjectAABBs();
         for (auto& aabb : aabbs) {
-            if (aabb.contains(m_object.getPosition()) || aabb.contains(m_object.getPosition()+m_object.getSize()) || aabb.contains(m_object.getPosition()+sf::Vector2f(m_object.getSize().x, 0)) || aabb.contains(m_object.getPosition()+sf::Vector2f(0, m_object.getSize().y))) {
+            if (collides(aabb, m_object)) {
                 m_object.move(-direction);
-                m_velocity = sf::Vector2f(0, 0);
-                m_acceleration = sf::Vector2f(0, 0);
+                m_velocity = {0, 0};
+                m_acceleration = {0, 0};
             }
         }
 
 
         // collision
 
+    }
+
+private:
+    bool collides(const sf::FloatRect& a, const sf::FloatRect& b) {
+        return a.intersects(b);
+    }
+
+    bool collides(const sf::FloatRect& a, const sf::Vector2f& b) {
+        return a.contains(b);
+    }
+
+    bool collides(const sf::FloatRect& a, const Object& b) {
+        return a.intersects(b.getAABB());
     }
 };
