@@ -23,7 +23,8 @@ add_executable(survivors src/main.cpp
         src/ecs/Objects.h
         src/test/wasd.h
         src/test/focused_camera.h
-        src/map/Map.h)
+        src/map/Map.h
+        src/map/Editor.h)
 target_link_libraries(survivors PRIVATE sfml-graphics)
 
 if (WIN32)

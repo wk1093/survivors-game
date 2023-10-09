@@ -5,6 +5,7 @@
 #include <chrono>
 
 #define TILE_SIZE 192
+#define TILE_SIZEf 192.0f
 
 /*
  * Represent a list of tiles in a file. A tile can be a basic (passthough/background) tile, or a static (collidable) tile.
@@ -18,11 +19,17 @@
  * S/B: S for static, B for basic
  * Sgravel = StaticObject("assets/img/tile/gravel.png")
  * seperated by spaces (meaning no spaces in tile names)
+ * E for empty
  */
+
+enum MapObjectType {
+    STATIC, BASIC, EMPTY
+};
+
 
 class MapFile {
 private:
-    std::vector<std::pair<bool, std::string>> m_map;
+    std::vector<std::pair<MapObjectType, std::string>> m_map;
     int width, height;
 public:
     MapFile(const char* path) {
@@ -41,9 +48,11 @@ public:
             // consume space
             consumeWhitespace(file);
             if (type == 'S') {
-                m_map.emplace_back(true, name);
+                m_map.emplace_back(STATIC, name);
             } else if (type == 'B') {
-                m_map.emplace_back(false, name);
+                m_map.emplace_back(BASIC, name);
+            } else if (type == 'E') {
+                m_map.emplace_back(EMPTY, "");
             } else {
                 std::cerr << "Invalid tile type: '" << type << "'" << std::endl;
                 std::cerr << name << std::endl;
@@ -51,6 +60,9 @@ public:
                 throw std::runtime_error("Invalid tile type");
             }
             i++;
+            if (i == width*height) {
+                break;
+            }
         }
         if (i != width*height) {
             std::cerr << "Map size does not match width and height" << std::endl;
@@ -76,34 +88,48 @@ public:
         return height;
     }
 
-    [[nodiscard]] const std::vector<std::pair<bool, std::string>>& getMap() const {
+    [[nodiscard]] const std::vector<std::pair<MapObjectType, std::string>>& getMap() const {
         return m_map;
     }
+};
+
+struct MapObject {
+    MapObjectType type;
+    int index;
+    void* obj;
 };
 
 class Map {
 private:
     std::vector<StaticObject*> m_staticObjects;
     std::vector<BasicObject*> m_basicObjects;
+    std::vector<MapObject> m_mapObjects;
+    int width, height;
 
 public:
     Map(const char* path, EntityComponentSystem& ecs) {
         MapFile mapFile(path);
-        int width = mapFile.getWidth();
-        int height = mapFile.getHeight();
-        const std::vector<std::pair<bool, std::string>>& map = mapFile.getMap();
+        width = mapFile.getWidth();
+        height = mapFile.getHeight();
+        const std::vector<std::pair<MapObjectType, std::string>>& map = mapFile.getMap();
         for (int i = 0; i < map.size(); i++) {
             int x = i % width;
             int y = i / width;
-            if (map[i].first) {
+            if (map[i].first == STATIC) {
                 m_staticObjects.emplace_back(&ecs.makeObject<StaticObject>("assets/img/tile/" + map[i].second + ".png"));
                 m_staticObjects.back()->setPosition(x*TILE_SIZE, y*TILE_SIZE);
-                std::cout << "static: " << x*TILE_SIZE << ", " << y*TILE_SIZE << std::endl;
-            } else {
+                m_mapObjects.emplace_back(MapObject{STATIC, (int)m_staticObjects.size()-1, m_staticObjects.back()});
+            } else if (map[i].first == BASIC) {
                 m_basicObjects.emplace_back(&ecs.makeObject<BasicObject>("assets/img/tile/" + map[i].second + ".png"));
                 m_basicObjects.back()->setPosition(x*TILE_SIZE, y*TILE_SIZE);
-                std::cout << "basic: " << x*TILE_SIZE << ", " << y*TILE_SIZE << std::endl;
+                m_mapObjects.emplace_back(MapObject{BASIC, (int)m_basicObjects.size()-1, m_basicObjects.back()});
+            } else {
+                m_mapObjects.emplace_back(MapObject{EMPTY, -1, nullptr});
             }
         }
+    }
+
+    MapObject getMapObject(int x, int y) {
+        return m_mapObjects[y*width + x];
     }
 };

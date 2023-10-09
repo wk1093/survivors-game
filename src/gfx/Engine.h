@@ -63,6 +63,10 @@ public:
         window.clear();
     }
 
+    void clear(const sf::Color& color) {
+        window.clear(color);
+    }
+
     static bool isKeyPressed(sf::Keyboard::Key key) {
         return sf::Keyboard::isKeyPressed(key);
     }
@@ -81,6 +85,18 @@ public:
 
     sf::Vector2f getSize() {
         return window.getView().getSize();
+    }
+
+    void reLaunch(unsigned int width, unsigned int height, const char* title) {
+        sf::View v = window.getView();
+        if (isOpen()) {
+            window.close();
+        }
+        window.create(sf::VideoMode(width, height), title);
+        window.setFramerateLimit(60);
+        window.setKeyRepeatEnabled(false);
+        window.setView(v);
+
     }
 
 
