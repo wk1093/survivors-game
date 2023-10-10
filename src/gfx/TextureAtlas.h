@@ -104,4 +104,14 @@ public:
     sf::Texture& getTexture() {
         return textureAtlas;
     }
+
+    std::string getFilename(const sf::IntRect& rect) {
+        for (const auto& [key, value] : textureAtlasMap) {
+            if (value == rect) {
+                return key;
+            }
+        }
+        std::cerr << "Rect not found in texture atlas" << std::endl;
+        throw std::runtime_error("Rect not found in texture atlas");
+    }
 };

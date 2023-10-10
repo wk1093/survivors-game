@@ -3,9 +3,10 @@
 #include "../gfx/all_sf.h"
 #include "../ecs/all.h"
 #include <chrono>
+#include <fstream>
 
-#define TILE_SIZE 192
-#define TILE_SIZEf 192.0f
+#define TILE_SIZE 16
+#define TILE_SIZEf 16.0f
 
 /*
  * Represent a list of tiles in a file. A tile can be a basic (passthough/background) tile, or a static (collidable) tile.
@@ -26,10 +27,17 @@ enum MapObjectType {
     STATIC, BASIC
 };
 
+struct MapDescriptor {
+    MapObjectType type;
+    std::string name;
+    float rotation;
+    MapDescriptor(MapObjectType type, std::string name, float rotation) : type(type), name(std::move(name)), rotation(rotation) {}
+};
+
 
 class MapFile {
 private:
-    std::vector<std::pair<MapObjectType, std::string>> m_map;
+    std::vector<MapDescriptor> m_map;
     int width, height;
 public:
     MapFile(const char* path) {
@@ -42,15 +50,16 @@ public:
         fscanf(file, "%d %d", &width, &height);
         char type;
         char name[256];
+        float rotation;
         int i = 0;
         consumeWhitespace(file);
-        while (fscanf(file, "%c%s", &type, name) != EOF) {
+        while (fscanf(file, "%c%s%f", &type, name, &rotation) != EOF) {
             // consume space
             consumeWhitespace(file);
             if (type == 'S') {
-                m_map.emplace_back(STATIC, name);
+                m_map.emplace_back(STATIC, name, rotation);
             } else if (type == 'B') {
-                m_map.emplace_back(BASIC, name);
+                m_map.emplace_back(BASIC, name, rotation);
             } else {
                 std::cerr << "Invalid tile type: '" << type << "'" << std::endl;
                 std::cerr << name << std::endl;
@@ -86,7 +95,7 @@ public:
         return height;
     }
 
-    [[nodiscard]] const std::vector<std::pair<MapObjectType, std::string>>& getMap() const {
+    [[nodiscard]] const std::vector<MapDescriptor>& getMap() const {
         return m_map;
     }
 };
@@ -106,26 +115,33 @@ private:
 
 public:
     Map(const char* path, EntityComponentSystem& ecs) {
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         MapFile mapFile(path);
         width = mapFile.getWidth();
         height = mapFile.getHeight();
-        const std::vector<std::pair<MapObjectType, std::string>>& map = mapFile.getMap();
+        const std::vector<MapDescriptor>& map = mapFile.getMap();
         for (int i = 0; i < map.size(); i++) {
             int x = i % width;
             int y = i / width;
-            if (map[i].first == STATIC) {
-                m_staticObjects.emplace_back(&ecs.makeObject<StaticObject>("assets/img/tile/" + map[i].second + ".png"));
+            if (map[i].type == STATIC) {
+                m_staticObjects.emplace_back(&ecs.makeObject<StaticObject>("assets/img/tile/" + map[i].name + ".png"));
                 m_staticObjects.back()->setPosition(x*TILE_SIZE, y*TILE_SIZE);
+                m_staticObjects.back()->setRotation(map[i].rotation);
+                m_staticObjects.back()->setOrigin(TILE_SIZE/2, TILE_SIZE/2);
                 m_mapObjects.emplace_back(MapObject{STATIC, (int)m_staticObjects.size()-1, m_staticObjects.back()});
-            } else if (map[i].first == BASIC) {
-                m_basicObjects.emplace_back(&ecs.makeObject<BasicObject>("assets/img/tile/" + map[i].second + ".png"));
+            } else if (map[i].type == BASIC) {
+                m_basicObjects.emplace_back(&ecs.makeObject<BasicObject>("assets/img/tile/" + map[i].name + ".png"));
                 m_basicObjects.back()->setPosition(x*TILE_SIZE, y*TILE_SIZE);
+                m_basicObjects.back()->setOrigin(TILE_SIZE/2, TILE_SIZE/2);
+                m_basicObjects.back()->setRotation(map[i].rotation);
                 m_mapObjects.emplace_back(MapObject{BASIC, (int)m_basicObjects.size()-1, m_basicObjects.back()});
             } else {
-                std::cerr << "Invalid tile type: '" << map[i].first << "'" << std::endl;
+                std::cerr << "Invalid tile type: '" << map[i].name << "'" << std::endl;
                 throw std::runtime_error("Invalid tile type");
             }
         }
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::cout << "Map loaded in " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
     }
 
     MapObject& getMapObject(int x, int y) {
@@ -140,6 +156,26 @@ public:
         return height;
     }
 
+    void save(Engine& engine, const std::string& directory) {
+        std::ofstream file(directory);
+        file << width << " " << height << std::endl;
+        for (auto & m_mapObject : m_mapObjects) {
+            if (m_mapObject.type == STATIC) {
+                file << "S";
+            } else if (m_mapObject.type == BASIC) {
+                file << "B";
+            } else {
+                std::cerr << "Invalid tile type: '" << m_mapObject.type << "'" << std::endl;
+                throw std::runtime_error("Invalid tile type");
+            }
+            // substr to remove "assets/img/tile/" and ".png" = substr(16, size-4
+            std::string fn = engine.getAtlas().getFilename(((Object*)m_mapObject.obj)->getSprite().getTextureRect());
+            file << fn.substr(16, fn.size()-16-4) << " ";
+            if (m_mapObject.index % width == width-1) {
+                file << std::endl;
+            }
+        }
+    }
 
 
 };

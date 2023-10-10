@@ -24,14 +24,21 @@ private:
     bool mouseUpStates[3] = {false};
     int mouseX = 0;
     int mouseY = 0;
+    // scroll
+    float scroll = 0;
+
 
 public:
     sf::Time deltaTime;
     float dt = 0;
 
-    Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory) : window(sf::VideoMode(width, height), title), atlas(imageDirectory) {
+    Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory) : atlas(imageDirectory) {
+        std::chrono::steady_clock::time_point beginw = std::chrono::steady_clock::now();
+        window.create(sf::VideoMode(width, height), title, sf::Style::Titlebar | sf::Style::Close);
         window.setFramerateLimit(60);
         window.setKeyRepeatEnabled(false);
+        std::chrono::steady_clock::time_point endw = std::chrono::steady_clock::now();
+        std::cout << "Window created in " << std::chrono::duration_cast<std::chrono::milliseconds>(endw - beginw).count() << "ms" << std::endl;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         atlas.build();
@@ -51,6 +58,11 @@ public:
             keyDownStates[i] = false;
             keyUpStates[i] = false;
         }
+        for (int i = 0; i < 3; i++) {
+            mouseDownStates[i] = false;
+            mouseUpStates[i] = false;
+        }
+        scroll = 0;
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -76,6 +88,9 @@ public:
             if (event.type == sf::Event::MouseMoved) {
                 mouseX = event.mouseMove.x;
                 mouseY = event.mouseMove.y;
+            }
+            if (event.type == sf::Event::MouseWheelScrolled) {
+                scroll = event.mouseWheelScroll.delta;
             }
         }
     }
@@ -174,4 +189,9 @@ public:
     sf::IntRect getRect(std::basic_string<char> &basicString) {
         return atlas.makeRect(basicString);
     }
+
+    [[nodiscard]] float scrollDelta() const {
+        return scroll;
+    }
+
 };

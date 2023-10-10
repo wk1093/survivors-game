@@ -26,17 +26,23 @@ public:
         tileTypes = recurseDirectory("assets/img/tile");
 
         View toolbarView = engine.getView();
-        toolbarView.setSize(tileTypes.size()*TILE_SIZEf + 30, size.y/3);
+        toolbarView.setSize(tileTypes.size()*(TILE_SIZEf+5)/2+16, TILE_SIZEf*2+10);
 
         float toolbarScale = 1.0/4.0f;
 
-        toolbarView.setCenter(TILE_SIZEf * (float)tileTypes.size() / 2.0f, TILE_SIZEf/2.0f);
+        toolbarView.setCenter((TILE_SIZEf+5) * (float)tileTypes.size() / 4.0f, TILE_SIZEf+5);
         toolbarView.setViewport(FloatRect(0, 1.0f-toolbarScale, 1, toolbarScale));
 
         tileSprites.reserve(tileTypes.size());
         for (int i = 0; i < tileTypes.size(); i++) {
             tileSprites.emplace_back(engine.makeSprite(tileTypes[i]));
-            tileSprites.back().setPosition((float)i*(TILE_SIZEf+5)-8, 0);
+            // 2 rows
+            if (i < tileTypes.size()/2) {
+                tileSprites.back().setPosition((float)i*(TILE_SIZEf+5)-8, TILE_SIZEf+5);
+            } else {
+                tileSprites.back().setPosition((float)(i-tileTypes.size()/2)*(TILE_SIZEf+5)-8, 0);
+            }
+          //  tileSprites.back().setPosition((float)i*(TILE_SIZEf+5)-8, 0);
         }
 
         RectangleShape selector(Vector2f(TILE_SIZEf+10, TILE_SIZEf+10));
@@ -73,8 +79,12 @@ public:
                     selection = 0;
                 }
             }
-
-            selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, -5);
+            if (selection < tileTypes.size()/2) {
+                selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, TILE_SIZEf);
+            } else {
+                selector.setPosition((float)(selection-tileTypes.size()/2)*(TILE_SIZEf+5)-8-5, -5);
+            }
+            //selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, -5);
 
             auto mousePos = engine.getMousePosition(mapView);
             int selectedTileX = (int)std::floor(mousePos.x/TILE_SIZEf);
@@ -107,6 +117,13 @@ public:
                 dragging = false;
             }
 
+            if (engine.scrollDelta() != 0) {
+
+                mapView.zoom(1.0f - engine.scrollDelta()/10.0f);
+                mapView.move(((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).x)*engine.scrollDelta()*0.1f,
+                             ((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).y)*engine.scrollDelta()*0.1f);
+            }
+
             if (engine.isKeyPressed(sf::Keyboard::S)) {
                 // make hovered object static
                 MapObject& mo = map.getMapObject(selectedTileX, selectedTileY);
@@ -119,6 +136,7 @@ public:
                     mo.type = STATIC;
                 }
             }
+
             if (engine.isKeyPressed(sf::Keyboard::B)) {
                 MapObject& mo = map.getMapObject(selectedTileX, selectedTileY);
                 if (mo.type == STATIC) {
@@ -128,6 +146,30 @@ public:
                     ecs.unmakeObject(*so);
                     mo.obj = bo;
                     mo.type = BASIC;
+                }
+            }
+
+            if (engine.isKeyDown(sf::Keyboard::R)) {
+                auto* o = (Object*)map.getMapObject(selectedTileX, selectedTileY).obj;
+                o->rotate(90);
+            }
+
+            if (engine.isMouseDown(sf::Mouse::Middle)) {
+                MapObject& mo = map.getMapObject(selectedTileX, selectedTileY);
+                if (mo.type == STATIC) {
+                    auto* so = (StaticObject*)mo.obj;
+                    Sprite s = so->getSprite();
+                    BasicObject* bo = &ecs.makeObject<BasicObject>(s);
+                    ecs.unmakeObject(*so);
+                    mo.obj = bo;
+                    mo.type = BASIC;
+                } else if (mo.type == BASIC) {
+                    auto* bo = (BasicObject*)mo.obj;
+                    Sprite s = bo->getSprite();
+                    StaticObject* so = &ecs.makeObject<StaticObject>(s);
+                    ecs.unmakeObject(*bo);
+                    mo.obj = so;
+                    mo.type = STATIC;
                 }
             }
 
@@ -163,6 +205,7 @@ public:
             }
             engine.render();
         }
+        map.save(engine, "assets/map/test.map");
         engine.setView(oldView);
     }
 };
