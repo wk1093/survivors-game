@@ -186,7 +186,7 @@ public:
         return mouseUpStates[button];
     }
 
-    sf::IntRect getRect(std::basic_string<char> &basicString) {
+    sf::IntRect getRect(const std::string& basicString) {
         return atlas.makeRect(basicString);
     }
 

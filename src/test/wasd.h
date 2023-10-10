@@ -29,7 +29,13 @@ enum class WasdMode {
     POSITION
 };
 
-void WasdMovement(Engine& e, PhysicsObject& po, float speed, WasdMode mode) {
+struct MovementState {
+    uint8_t last = 2; // 0 = up, 1 = left, 2 = down, 3 = right
+};
+
+// T can be PhysicsObject or AnimatedPhysicsObject
+template<typename T>
+void WasdMovement(MovementState& state, Engine& e, T& po, float speed, WasdMode mode, bool animate = false) {
     std::function<void(float, float)> f;
     switch (mode) {
         case WasdMode::ACCELERATION:
@@ -45,15 +51,47 @@ void WasdMovement(Engine& e, PhysicsObject& po, float speed, WasdMode mode) {
 
     if (e.isKeyPressed(sf::Keyboard::W)) {
         f(0, -1);
+        if (animate) {
+            po.setAnimation("walk_up");
+            state.last = 0;
+        }
     }
     if (e.isKeyPressed(sf::Keyboard::A)) {
         f(-1, 0);
+        if (animate) {
+            po.setAnimation("walk_left");
+            state.last = 1;
+        }
     }
     if (e.isKeyPressed(sf::Keyboard::S)) {
         f(0, 1);
+        if (animate) {
+            po.setAnimation("walk_down");
+            state.last = 2;
+        }
     }
     if (e.isKeyPressed(sf::Keyboard::D)) {
         f(1, 0);
+        if (animate) {
+            po.setAnimation("walk_right");
+            state.last = 3;
+        }
+    }
+    if (!e.isKeyPressed(sf::Keyboard::W) && !e.isKeyPressed(sf::Keyboard::A) && !e.isKeyPressed(sf::Keyboard::S) && !e.isKeyPressed(sf::Keyboard::D)) {
+        switch (state.last) {
+            case 0:
+                po.setAnimation("idle_up");
+                break;
+            case 1:
+                po.setAnimation("idle_left");
+                break;
+            case 2:
+                po.setAnimation("idle_down");
+                break;
+            case 3:
+                po.setAnimation("idle_right");
+                break;
+        }
     }
 }
 

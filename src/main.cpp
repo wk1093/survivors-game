@@ -7,7 +7,7 @@
 #include "map/MapGenerator.h"
 
 #define NEW_MAP 0
-#define EDIT_MAP 1
+#define EDIT_MAP 0
 #define EXIT_AFTER_EDIT 0
 
 int main() {
@@ -31,17 +31,28 @@ int main() {
     v.zoom(0.1);
     e.setView(v);
 
-    auto& player = ecs.makeObject<PhysicsObject>("assets/img/char/sprite_00.png");
 
-    // TODO: fix boxes
+
+    auto& player = ecs.makeObject<AnimatedPhysicsObject>("assets/img/char/sprite_00.png");
+    player.addAnimation("idle_down", std::vector<std::string>{"char/sprite_00.png", "char/sprite_01.png"}, 0.2);
+    player.addAnimation("walk_down", std::vector<std::string>{"char/sprite_02.png", "char/sprite_03.png"});
+    player.addAnimation("idle_up", std::vector<std::string>{"char/sprite_04.png", "char/sprite_05.png"}, 0.2);
+    player.addAnimation("walk_up", std::vector<std::string>{"char/sprite_06.png", "char/sprite_07.png"});
+    player.addAnimation("idle_left", std::vector<std::string>{"char/sprite_08.png", "char/sprite_09.png"}, 0.2);
+    player.addAnimation("walk_left", std::vector<std::string>{"char/sprite_10.png", "char/sprite_11.png"});
+    player.addAnimation("idle_right", std::vector<std::string>{"char/sprite_12.png", "char/sprite_13.png"}, 0.2);
+    player.addAnimation("walk_right", std::vector<std::string>{"char/sprite_14.png", "char/sprite_15.png"});
+    player.setAnimation("idle_down");
+    player.getAnim().setSpeed(0.01);
 
     float speed = 0.2;
+    MovementState state;
     while (e.isOpen()) {
         e.update();
 
         // wasd movement
 
-        WasdMovement(e, player, speed, WasdMode::ACCELERATION);
+        WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
         ecs.update();
 
         e.clear();

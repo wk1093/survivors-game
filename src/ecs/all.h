@@ -24,8 +24,8 @@ void EntityComponentSystem::draw(bool debug) {
         if (debug) {
             if (dynamic_cast<StaticObject*>(o.get())) {
                 RectangleShape r;
-                r.setSize(Vector2f(o->getAABB().width, o->getAABB().height));
-                r.setPosition(o->getAABB().left, o->getAABB().top);
+                r.setSize(Vector2f(o->getGlobalBounds().width, o->getGlobalBounds().height));
+                r.setPosition(o->getGlobalBounds().left, o->getGlobalBounds().top);
                 r.setFillColor(Color(100, 0, 0, 100));
                 m_engine.draw(r);
                 continue;

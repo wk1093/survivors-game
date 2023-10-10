@@ -5,27 +5,48 @@
 #include <cmath>
 #include "EntityComponentSystem.h"
 
+struct Animation {
+    std::vector<sf::IntRect> frames;
+    float speed=1;
+    explicit Animation(std::vector<sf::IntRect> f, float s=1): frames(std::move(f)), speed(s) { }
+
+    Animation(const std::vector<sf::Sprite>& sprites, float s=1) : speed(s) {
+        for (auto& sprite : sprites) {
+            frames.emplace_back(sprite.getTextureRect());
+        }
+    }
+
+    Animation(const Animation& a) = default;
+    Animation() = default;
+
+
+
+};
+
 class AnimationComponent : public Component {
 protected:
-    std::unordered_map<std::string, std::vector<sf::IntRect>> m_animations; // name, frames, ex: "idle", { {0, 0, 32, 32}, {32, 0, 32, 32}, {64, 0, 32, 32} }
+    std::unordered_map<std::string, Animation> m_animations; // name, frames, ex: "idle", { {0, 0, 32, 32}, {32, 0, 32, 32}, {64, 0, 32, 32} }
     std::string m_currentAnimation;
     int m_currentFrame;
     float m_frameTime;
     float m_frameTimer;
     float m_speed;
 public:
-    AnimationComponent(std::unordered_map<std::string, std::vector<sf::IntRect>> anim, Engine& e, Object& o): m_currentFrame(0), m_frameTime(0.1), m_frameTimer(0), m_speed(1), m_animations(std::move(anim)), Component(e, o) { }
+    AnimationComponent(std::unordered_map<std::string, Animation> anim, Engine& e, Object& o): m_currentFrame(0), m_frameTime(0.1), m_frameTimer(0), m_speed(1), m_animations(std::move(anim)), Component(e, o) { }
     AnimationComponent(Engine& e, Object& o): m_currentFrame(0), m_frameTime(0.1), m_frameTimer(0), m_speed(1), Component(e, o) { }
 
-    void addAnimation(const std::string& name, const std::vector<sf::IntRect>& frames) {
+    void addAnimation(const std::string& name, const Animation& frames) {
         m_animations[name] = frames;
     }
 
     void setAnimation(const std::string& name) {
+        if (m_currentAnimation == name) {
+            return;
+        }
         m_currentAnimation = name;
         m_currentFrame = 0;
-        m_frameTimer = 0;
-        m_object.setTextureRect(m_animations[name][0]);
+        //m_frameTimer = 0;
+        m_object.setTextureRect(m_animations[name].frames[0]);
     }
 
     void setSpeed(float speed) {
@@ -33,14 +54,19 @@ public:
     }
 
     void update() override {
-        m_frameTimer += m_engine.dt*m_speed;
+        m_frameTimer += m_engine.dt*m_animations[m_currentAnimation].speed*m_speed;
         if (m_frameTimer >= m_frameTime) {
             m_frameTimer = 0;
             m_currentFrame++;
-            if (m_currentFrame >= m_animations[m_currentAnimation].size()) {
+            if (m_currentFrame >= m_animations[m_currentAnimation].frames.size()) {
                 m_currentFrame = 0;
             }
-            m_object.setTextureRect(m_animations[m_currentAnimation][m_currentFrame]);
+            if (m_currentFrame < 0) {
+                m_currentFrame = m_animations[m_currentAnimation].frames.size()-1;
+            }
+            if (!m_animations[m_currentAnimation].frames.empty()) {
+                m_object.setTextureRect(m_animations[m_currentAnimation].frames[m_currentFrame]);
+            }
         }
     }
 };

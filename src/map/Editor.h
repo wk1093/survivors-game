@@ -87,8 +87,8 @@ public:
             //selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, -5);
 
             auto mousePos = engine.getMousePosition(mapView);
-            int selectedTileX = (int)std::floor(mousePos.x/TILE_SIZEf);
-            int selectedTileY = (int)std::floor(mousePos.y/TILE_SIZEf);
+            int selectedTileX = (int)std::floor((mousePos.x + TILE_SIZEf/2)/TILE_SIZEf);
+            int selectedTileY = (int)std::floor((mousePos.y + TILE_SIZEf/2)/TILE_SIZEf);
 
             if (selectedTileX < 0) {
                 selectedTileX = 0;
@@ -101,7 +101,7 @@ public:
                 selectedTileY = map.getHeight()-1;
             }
 
-            tileSelector.setPosition(Vector2f(selectedTileX*TILE_SIZEf, selectedTileY*TILE_SIZEf));
+            tileSelector.setPosition(Vector2f((float)selectedTileX*TILE_SIZEf - TILE_SIZEf/2, (float)selectedTileY*TILE_SIZEf - TILE_SIZEf/2));
 
             if (engine.isMousePressed(sf::Mouse::Right)) {
                 // drag

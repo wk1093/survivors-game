@@ -9,7 +9,9 @@ enum class FocusType {
     CLICK, // camera only moves if the obj moves out of the screen, and the camera instantly moves in a grid-like fashion
 };
 
-void FocusedCamera(Engine& e, PhysicsObject& obj, FocusType type) {
+// T can be PhysicsObject or AnimatedPhysicsObject
+template<typename T>
+void FocusedCamera(Engine& e, T& obj, FocusType type) {
     sf::View view = e.getView();
     sf::Vector2f pos = obj.getPosition();
     sf::Vector2f viewSize = view.getSize();
