@@ -128,7 +128,7 @@ public:
         }
     }
 
-    MapObject getMapObject(int x, int y) {
+    MapObject& getMapObject(int x, int y) {
         return m_mapObjects[y*width + x];
     }
 

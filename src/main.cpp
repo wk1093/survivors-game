@@ -14,7 +14,7 @@ int main() {
     MapEditor editor(e, m, ecs);
 
     editor.launch(); // launches the editor. Once the editor is closed (ESC), the below code will run
-    exit(0);
+
     e.reLaunch(1280, 720, "Survivors");
 
     auto v = e.getView();
@@ -38,7 +38,7 @@ int main() {
 
         FocusedCamera(e, player, FocusType::SOFT_CENTER);
 
-        ecs.draw();
+        ecs.draw(true);
 
         e.render();
     }

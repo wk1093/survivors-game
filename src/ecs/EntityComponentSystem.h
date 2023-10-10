@@ -18,6 +18,16 @@ public:
         return *static_cast<T*>(m_objects.back().get());
     }
 
+    // unmake object
+    void unmakeObject(Object& o) {
+        for (auto it = m_objects.begin(); it != m_objects.end(); it++) {
+            if (it->get() == &o) {
+                m_objects.erase(it);
+                return;
+            }
+        }
+    }
+
     // return a list of AABBs of all StaticObjects in the ECS
     std::vector<sf::FloatRect> getStaticObjectAABBs();
 
@@ -27,11 +37,7 @@ public:
         }
     }
 
-    void draw() {
-        for (auto& o : m_objects) {
-            o->draw();
-        }
-    }
+    void draw(bool debug = false);
 
 
 };

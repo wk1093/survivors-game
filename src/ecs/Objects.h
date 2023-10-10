@@ -5,6 +5,7 @@
 class BasicObject : public Object {
 public:
     BasicObject(EntityComponentSystem& ecs, Engine& e, const std::string& path) : Object(e, path) { }
+    BasicObject(EntityComponentSystem& ecs, Engine& e, Sprite s) : Object(e, std::move(s)) { }
 
     void update() override { }
 };
@@ -37,6 +38,7 @@ class PhysicsObject : public Object {
 
 public:
     PhysicsObject(EntityComponentSystem &ecs, Engine &e, const std::string &path) : Object(e, path), m_physics(e, *this, ecs) { }
+    PhysicsObject(EntityComponentSystem &ecs, Engine &e, Sprite s) : Object(e, std::move(s)), m_physics(e, *this, ecs) { }
 
     void setVelocity(float x, float y) {
         m_physics.setVelocity(x, y);
@@ -73,14 +75,12 @@ public:
     void update() override {
         m_physics.update();
     }
-
-
-
 };
 
 class StaticObject : public Object { // by itself, this class is the same as BasicObject, but it is used for static object collision detection
 public:
     StaticObject(EntityComponentSystem& ecs, Engine& e, const std::string& path) : Object(e, path) { }
+    StaticObject(EntityComponentSystem& ecs, Engine& e, Sprite s) : Object(e, std::move(s)) { }
 
     void update() override { }
 

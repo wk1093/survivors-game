@@ -107,6 +107,30 @@ public:
                 dragging = false;
             }
 
+            if (engine.isKeyPressed(sf::Keyboard::S)) {
+                // make hovered object static
+                MapObject& mo = map.getMapObject(selectedTileX, selectedTileY);
+                if (mo.type == BASIC) {
+                    auto* bo = (BasicObject*)mo.obj;
+                    Sprite s = bo->getSprite();
+                    StaticObject* so = &ecs.makeObject<StaticObject>(s);
+                    ecs.unmakeObject(*bo);
+                    mo.obj = so;
+                    mo.type = STATIC;
+                }
+            }
+            if (engine.isKeyPressed(sf::Keyboard::B)) {
+                MapObject& mo = map.getMapObject(selectedTileX, selectedTileY);
+                if (mo.type == STATIC) {
+                    auto* so = (StaticObject*)mo.obj;
+                    Sprite s = so->getSprite();
+                    BasicObject* bo = &ecs.makeObject<BasicObject>(s);
+                    ecs.unmakeObject(*so);
+                    mo.obj = bo;
+                    mo.type = BASIC;
+                }
+            }
+
             if (engine.isMousePressed(sf::Mouse::Left)) {
                 if (selectedTileX < 0 || selectedTileY < 0 || selectedTileX >= map.getWidth() || selectedTileY >= map.getHeight()) {
                     continue;
@@ -126,7 +150,7 @@ public:
             engine.clear();
 
             engine.setView(mapView);
-            ecs.draw();
+            ecs.draw(true);
             engine.draw(tileSelector);
 
 
