@@ -52,7 +52,8 @@ public:
         RectangleShape tileSelector(Vector2f(TILE_SIZEf, TILE_SIZEf));
         tileSelector.setFillColor(sf::Color(255, 255, 255, 100));
 
-
+        sf::Vector2f dragStart;
+        bool dragging = false;
 
         while (engine.isOpen()) {
             engine.update();
@@ -91,6 +92,20 @@ public:
             }
 
             tileSelector.setPosition(Vector2f(selectedTileX*TILE_SIZEf, selectedTileY*TILE_SIZEf));
+
+            if (engine.isMousePressed(sf::Mouse::Right)) {
+                // drag
+                if (!dragging) {
+                    dragStart = mousePos;
+                    dragging = true;
+                } else {
+                    Vector2f delta = dragStart - mousePos;
+                    mapView.move(delta);
+                    engine.setView(mapView);
+                }
+            } else {
+                dragging = false;
+            }
 
             if (engine.isMousePressed(sf::Mouse::Left)) {
                 if (selectedTileX < 0 || selectedTileY < 0 || selectedTileX >= map.getWidth() || selectedTileY >= map.getHeight()) {
