@@ -14,7 +14,7 @@ int main() {
     MapEditor editor(e, m, ecs);
 
     editor.launch(); // launches the editor. Once the editor is closed (ESC), the below code will run
-
+    exit(0);
     e.reLaunch(1280, 720, "Survivors");
 
     auto v = e.getView();
@@ -31,7 +31,7 @@ int main() {
 
         // wasd movement
 
-        WasdMovement(player, speed, WasdMode::ACCELERATION);
+        WasdMovement(e, player, speed, WasdMode::ACCELERATION);
         ecs.update();
 
         e.clear();

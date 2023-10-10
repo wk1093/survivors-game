@@ -13,6 +13,11 @@ private:
     TextureAtlas atlas;
     sf::Clock deltaClock;
 
+    // key states
+    bool keyStates[256] = {false};
+    bool keyDownStates[256] = {false};
+    bool keyUpStates[256] = {false};
+
 public:
     sf::Time deltaTime;
     float dt = 0;
@@ -35,10 +40,23 @@ public:
         deltaTime = deltaClock.restart();
         dt = deltaTime.asSeconds() * 60; // roughly 1 at 60fps
         sf::Event event{};
+        for (int i = 0; i < 256; i++) {
+            keyDownStates[i] = false;
+            keyUpStates[i] = false;
+        }
+
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
                 break;
+            }
+            if (event.type == sf::Event::KeyPressed) {
+                keyStates[event.key.code] = true;
+                keyDownStates[event.key.code] = true;
+            }
+            if (event.type == sf::Event::KeyReleased) {
+                keyStates[event.key.code] = false;
+                keyUpStates[event.key.code] = true;
             }
         }
     }
@@ -67,8 +85,18 @@ public:
         window.clear(color);
     }
 
-    static bool isKeyPressed(sf::Keyboard::Key key) {
-        return sf::Keyboard::isKeyPressed(key);
+    bool isKeyPressed(sf::Keyboard::Key key) {
+        return keyStates[key];
+    }
+
+    bool isKeyDown(sf::Keyboard::Key key) {
+        // only true on the first frame the key is pressed
+        return keyDownStates[key];
+    }
+
+    bool isKeyUp(sf::Keyboard::Key key) {
+        // only true on the first frame the key is released
+        return keyUpStates[key];
     }
 
     sf::RenderWindow &getWindow() {

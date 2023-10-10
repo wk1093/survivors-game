@@ -46,13 +46,31 @@ public:
         toolbarBackground.move(-5000, -5000);
         toolbarBackground.setFillColor(sf::Color(100, 100, 100, 100));
 
+        int selection = 0;
 
 
         while (engine.isOpen()) {
             engine.update();
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+            if (engine.isKeyPressed(sf::Keyboard::Escape)) {
                 break;
             }
+
+            if (engine.isKeyDown(sf::Keyboard::Left)) {
+                selection--;
+                if (selection < 0) {
+                    selection = tileTypes.size()-1;
+                }
+            }
+            if (engine.isKeyDown(sf::Keyboard::Right)) {
+                selection++;
+                if (selection >= tileTypes.size()) {
+                    selection = 0;
+                }
+            }
+
+            selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, -5);
+
+
 
             engine.clear();
 

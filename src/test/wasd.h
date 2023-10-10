@@ -29,7 +29,7 @@ enum class WasdMode {
     POSITION
 };
 
-void WasdMovement(PhysicsObject& po, float speed, WasdMode mode) {
+void WasdMovement(Engine& e, PhysicsObject& po, float speed, WasdMode mode) {
     std::function<void(float, float)> f;
     switch (mode) {
         case WasdMode::ACCELERATION:
@@ -43,16 +43,16 @@ void WasdMovement(PhysicsObject& po, float speed, WasdMode mode) {
             break;
     }
 
-    if (Engine::isKeyPressed(sf::Keyboard::W)) {
+    if (e.isKeyPressed(sf::Keyboard::W)) {
         f(0, -1);
     }
-    if (Engine::isKeyPressed(sf::Keyboard::A)) {
+    if (e.isKeyPressed(sf::Keyboard::A)) {
         f(-1, 0);
     }
-    if (Engine::isKeyPressed(sf::Keyboard::S)) {
+    if (e.isKeyPressed(sf::Keyboard::S)) {
         f(0, 1);
     }
-    if (Engine::isKeyPressed(sf::Keyboard::D)) {
+    if (e.isKeyPressed(sf::Keyboard::D)) {
         f(1, 0);
     }
 }
