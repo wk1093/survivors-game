@@ -23,7 +23,7 @@
  */
 
 enum MapObjectType {
-    STATIC, BASIC, EMPTY
+    STATIC, BASIC
 };
 
 
@@ -51,8 +51,6 @@ public:
                 m_map.emplace_back(STATIC, name);
             } else if (type == 'B') {
                 m_map.emplace_back(BASIC, name);
-            } else if (type == 'E') {
-                m_map.emplace_back(EMPTY, "");
             } else {
                 std::cerr << "Invalid tile type: '" << type << "'" << std::endl;
                 std::cerr << name << std::endl;
@@ -124,7 +122,8 @@ public:
                 m_basicObjects.back()->setPosition(x*TILE_SIZE, y*TILE_SIZE);
                 m_mapObjects.emplace_back(MapObject{BASIC, (int)m_basicObjects.size()-1, m_basicObjects.back()});
             } else {
-                m_mapObjects.emplace_back(MapObject{EMPTY, -1, nullptr});
+                std::cerr << "Invalid tile type: '" << map[i].first << "'" << std::endl;
+                throw std::runtime_error("Invalid tile type");
             }
         }
     }
@@ -132,4 +131,15 @@ public:
     MapObject getMapObject(int x, int y) {
         return m_mapObjects[y*width + x];
     }
+
+    [[nodiscard]] int getWidth() const {
+        return width;
+    }
+
+    [[nodiscard]] int getHeight() const {
+        return height;
+    }
+
+
+
 };

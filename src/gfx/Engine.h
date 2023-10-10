@@ -18,6 +18,13 @@ private:
     bool keyDownStates[256] = {false};
     bool keyUpStates[256] = {false};
 
+    // mouse states
+    bool mouseStates[3] = {false};
+    bool mouseDownStates[3] = {false};
+    bool mouseUpStates[3] = {false};
+    int mouseX = 0;
+    int mouseY = 0;
+
 public:
     sf::Time deltaTime;
     float dt = 0;
@@ -57,6 +64,18 @@ public:
             if (event.type == sf::Event::KeyReleased) {
                 keyStates[event.key.code] = false;
                 keyUpStates[event.key.code] = true;
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                mouseStates[event.mouseButton.button] = true;
+                mouseDownStates[event.mouseButton.button] = true;
+            }
+            if (event.type == sf::Event::MouseButtonReleased) {
+                mouseStates[event.mouseButton.button] = false;
+                mouseUpStates[event.mouseButton.button] = true;
+            }
+            if (event.type == sf::Event::MouseMoved) {
+                mouseX = event.mouseMove.x;
+                mouseY = event.mouseMove.y;
             }
         }
     }
@@ -128,6 +147,31 @@ public:
     }
 
 
-    
+    sf::Vector2i getMousePosition() const {
+        return {mouseX, mouseY};
+    }
 
+    sf::Vector2f getMousePosition(const sf::View& view) const {
+        return window.mapPixelToCoords(getMousePosition(), view);
+    }
+
+    sf::Vector2f mapPixelToCoords(const sf::Vector2i& point, const sf::View& view) const {
+        return window.mapPixelToCoords(point, view);
+    }
+
+    bool isMousePressed(sf::Mouse::Button button) {
+        return mouseStates[button];
+    }
+
+    bool isMouseDown(sf::Mouse::Button button) {
+        return mouseDownStates[button];
+    }
+
+    bool isMouseUp(sf::Mouse::Button button) {
+        return mouseUpStates[button];
+    }
+
+    sf::IntRect getRect(std::basic_string<char> &basicString) {
+        return atlas.makeRect(basicString);
+    }
 };

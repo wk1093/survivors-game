@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "../gfx/all_sf.h"
 #include "../ecs/all.h"
 #include "Map.h"
@@ -22,7 +24,6 @@ public:
         mapView.setCenter(center.x*3, center.y*3);
 
         tileTypes = recurseDirectory("assets/img/tile");
-        tileTypes.push_back("assets/img/empty.png");
 
         View toolbarView = engine.getView();
         toolbarView.setSize(tileTypes.size()*TILE_SIZEf + 30, size.y/3);
@@ -48,6 +49,10 @@ public:
 
         int selection = 0;
 
+        RectangleShape tileSelector(Vector2f(TILE_SIZEf, TILE_SIZEf));
+        tileSelector.setFillColor(sf::Color(255, 255, 255, 100));
+
+
 
         while (engine.isOpen()) {
             engine.update();
@@ -70,12 +75,45 @@ public:
 
             selector.setPosition((float)selection*(TILE_SIZEf+5)-8-5, -5);
 
+            auto mousePos = engine.getMousePosition(mapView);
+            int selectedTileX = (int)std::floor(mousePos.x/TILE_SIZEf);
+            int selectedTileY = (int)std::floor(mousePos.y/TILE_SIZEf);
+
+            if (selectedTileX < 0) {
+                selectedTileX = 0;
+            } else if (selectedTileX >= map.getWidth()) {
+                selectedTileX = map.getWidth()-1;
+            }
+            if (selectedTileY < 0) {
+                selectedTileY = 0;
+            } else if (selectedTileY >= map.getHeight()) {
+                selectedTileY = map.getHeight()-1;
+            }
+
+            tileSelector.setPosition(Vector2f(selectedTileX*TILE_SIZEf, selectedTileY*TILE_SIZEf));
+
+            if (engine.isMousePressed(sf::Mouse::Left)) {
+                if (selectedTileX < 0 || selectedTileY < 0 || selectedTileX >= map.getWidth() || selectedTileY >= map.getHeight()) {
+                    continue;
+                }
+                MapObject mo = map.getMapObject(selectedTileX, selectedTileY);
+                if (mo.type == STATIC) {
+                    ((StaticObject*)mo.obj)->setTextureRect(engine.getRect(tileTypes[selection]));
+                } else if (mo.type == BASIC) {
+                    ((BasicObject*)mo.obj)->setTextureRect(engine.getRect(tileTypes[selection]));
+                } else {
+                    printf("NOT IMPLEMENTED\n");
+                }
+            }
+
 
 
             engine.clear();
 
             engine.setView(mapView);
             ecs.draw();
+            engine.draw(tileSelector);
+
 
             engine.setView(toolbarView);
             engine.draw(toolbarBackground);
