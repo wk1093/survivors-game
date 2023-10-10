@@ -10,11 +10,11 @@ std::vector<std::string> recurseDirectory(const char* directory, const std::stri
     std::vector<std::string> files;
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         if (entry.is_directory()) {
-            std::vector<std::string> subFiles = recurseDirectory(entry.path().string().c_str());
+            std::vector<std::string> subFiles = recurseDirectory(entry.path().generic_string().c_str());
             files.insert(files.end(), subFiles.begin(), subFiles.end());
         } else {
             if (entry.path().extension() == extension) {
-                files.push_back(entry.path().string());
+                files.push_back(entry.path().generic_string());
             }
         }
     }
@@ -25,7 +25,7 @@ std::vector<std::string> recurseDirectory(const char* directory, const std::stri
 class TextureAtlas {
 private:
     sf::Texture textureAtlas;
-    std::unordered_map<std::filesystem::path, sf::IntRect> textureAtlasMap;
+    std::unordered_map<std::string, sf::IntRect> textureAtlasMap;
     const char* directory;
 
 public:
@@ -66,7 +66,7 @@ public:
         for (const sf::Image& image : images) {
             atlasImage.copy(image, x, 0);
             auto rect = sf::IntRect((int)x, 0, (int)image.getSize().x, (int)image.getSize().y);
-            textureAtlasMap[std::filesystem::path(files[i])] = rect;
+            textureAtlasMap[std::filesystem::path(files[i]).generic_string()] = rect;
             x += image.getSize().x;
             i++;
         }
@@ -75,7 +75,7 @@ public:
     }
 
     sf::Sprite makeSprite(const std::string& file) {
-        if (textureAtlasMap.find(std::filesystem::path(file)) == textureAtlasMap.end()) {
+        if (textureAtlasMap.find(std::filesystem::path(file).generic_string()) == textureAtlasMap.end()) {
             std::cerr << "File not found in texture atlas" << std::endl;
             std::cerr << "Offending file: " << file << std::endl;
             std::cerr << "Options: " << std::endl;
@@ -84,12 +84,12 @@ public:
             }
             throw std::runtime_error("File not found in texture atlas");
         }
-        sf::Sprite sprite(textureAtlas, textureAtlasMap[std::filesystem::path(file)]);
+        sf::Sprite sprite(textureAtlas, textureAtlasMap[std::filesystem::path(file).generic_string()]);
         return sprite;
     }
 
     sf::IntRect makeRect(const std::string& file) {
-        if (textureAtlasMap.find(std::filesystem::path(file)) == textureAtlasMap.end()) {
+        if (textureAtlasMap.find(std::filesystem::path(file).generic_string()) == textureAtlasMap.end()) {
             std::cerr << "File not found in texture atlas" << std::endl;
             std::cerr << "Offending file: " << file << std::endl;
             std::cerr << "Options: " << std::endl;
@@ -98,7 +98,7 @@ public:
             }
             throw std::runtime_error("File not found in texture atlas");
         }
-        return textureAtlasMap[std::filesystem::path(file)];
+        return textureAtlasMap[std::filesystem::path(file).generic_string()];
     }
 
     sf::Texture& getTexture() {
