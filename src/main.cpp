@@ -5,7 +5,7 @@
 #include "test/focused_camera.h"
 
 #define NEW_MAP 0
-#define EDIT_MAP 0
+#define EDIT_MAP 1
 #define EXIT_AFTER_EDIT 0
 
 int main() {

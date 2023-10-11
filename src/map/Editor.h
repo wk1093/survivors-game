@@ -118,10 +118,24 @@ public:
             }
 
             if (engine.scrollDelta() != 0) {
+                if (engine.isKeyPressed(Keyboard::LControl)) {
+                    // scroll through tiles
+                    selection -= engine.scrollDelta();
+                    if (selection < 0) {
+                        selection = tileTypes.size()-1;
+                    }
+                    if (selection >= tileTypes.size()) {
+                        selection = 0;
+                    }
 
-                mapView.zoom(1.0f - engine.scrollDelta()/10.0f);
-                mapView.move(((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).x)*engine.scrollDelta()*0.1f,
-                             ((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).y)*engine.scrollDelta()*0.1f);
+                } else {
+                    mapView.zoom(1.0f - engine.scrollDelta() / 10.0f);
+                    mapView.move(
+                            ((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).x) * engine.scrollDelta() *
+                            0.1f,
+                            ((sf::Vector2f(mousePos - sf::Vector2f(mapView.getCenter()))).y) * engine.scrollDelta() *
+                            0.1f);
+                }
             }
 
             if (engine.isKeyPressed(sf::Keyboard::S)) {
