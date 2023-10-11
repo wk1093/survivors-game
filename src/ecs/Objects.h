@@ -59,6 +59,10 @@ public:
         m_physics.setVelocity(x, y);
     }
 
+    Vector2f getVelocity() {
+        return m_physics.getVelocity();
+    }
+
     void setVelocity(sf::Vector2f v) {
         m_physics.setVelocity(v);
     }
@@ -140,6 +144,10 @@ public:
         m_physics.setVelocity(v);
     }
 
+    Vector2f getVelocity() {
+        return m_physics.getVelocity();
+    }
+
     void setAcceleration(float x, float y) {
         m_physics.setAcceleration(x, y);
     }
@@ -162,6 +170,10 @@ public:
 
     void addVelocity(sf::Vector2f v) {
         m_physics.addVelocity(v);
+    }
+
+    void setFriction(float f) {
+        m_physics.setFriction(f);
     }
 
     void update() override {

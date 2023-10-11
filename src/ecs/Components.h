@@ -89,6 +89,10 @@ public:
         m_velocity = v;
     }
 
+    Vector2f getVelocity() {
+        return m_velocity;
+    }
+
     void addVelocity(float x, float y) {
         m_velocity += sf::Vector2f(x, y);
     }

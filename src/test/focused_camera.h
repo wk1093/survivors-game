@@ -11,8 +11,7 @@ enum class FocusType {
 
 // T can be PhysicsObject or AnimatedPhysicsObject
 template<typename T>
-void FocusedCamera(Engine& e, T& obj, FocusType type) {
-    sf::View view = e.getView();
+sf::View FocusedCamera(Engine& e, T& obj, FocusType type, sf::View view) {
     sf::Vector2f pos = obj.getPosition();
     sf::Vector2f viewSize = view.getSize();
     sf::Vector2f objSize = obj.getSize();
@@ -42,4 +41,5 @@ void FocusedCamera(Engine& e, T& obj, FocusType type) {
     }
 
     e.setView(view);
+    return view;
 }

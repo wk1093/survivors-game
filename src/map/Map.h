@@ -156,6 +156,10 @@ public:
         return height;
     }
 
+    [[nodiscard]] Vector2i getSize() const {
+        return Vector2i(width, height);
+    }
+
     void save(Engine& engine, const std::string& directory) {
         std::ofstream file(directory);
         file << width << " " << height << std::endl;

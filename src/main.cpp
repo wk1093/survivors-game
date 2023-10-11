@@ -1,10 +1,8 @@
 #include "gfx/all_sf.h"
 #include "ecs/all.h"
+#include "map/all.h"
 #include "test/wasd.h"
 #include "test/focused_camera.h"
-#include "map/Map.h"
-#include "map/Editor.h"
-#include "map/MapGenerator.h"
 
 #define NEW_MAP 0
 #define EDIT_MAP 0
@@ -27,9 +25,10 @@ int main() {
 #endif
 #endif
 
-    auto v = e.getView();
-    v.zoom(0.1);
-    e.setView(v);
+    auto view = e.getView();
+    auto gui = view;
+    view.zoom(0.1);
+    e.setView(view);
 
 
 
@@ -44,21 +43,46 @@ int main() {
     player.addAnimation("walk_right", std::vector<std::string>{"char/sprite_14.png", "char/sprite_15.png"});
     player.setAnimation("idle_down");
     player.getAnim().setSpeed(0.01);
+    player.setFriction(0.8);
 
     float speed = 0.2;
+    float sprint_speed = 0.35;
+    float stamina = 100; // 0 - 100
     MovementState state;
+
+    RectangleShape stamina_bar({1280, 30});
+    stamina_bar.setFillColor(Color::Red);
+    stamina_bar.setPosition(0, 0);
+
     while (e.isOpen()) {
         e.update();
 
         // wasd movement
-
-        WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
+        if (e.isKeyPressed(Keyboard::LControl) && stamina > 0) {
+            WasdMovement(state, e, player, sprint_speed, WasdMode::ACCELERATION, true);
+            stamina -= 0.25f * e.dt;
+        } else {
+            WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
+        }
+        LockInMap(player, m);
         ecs.update();
 
         e.clear();
+       view = FocusedCamera(e, player, FocusType::SOFT_CENTER, view);
 
-        FocusedCamera(e, player, FocusType::SOFT_CENTER);
         ecs.draw(true);
+
+        if (stamina < 100) {
+            stamina += 0.10f * e.dt;
+        }
+        if (stamina > 100) {
+            stamina = 100;
+        }
+
+        stamina_bar.setSize({stamina*12.8f, 30});
+
+        e.setView(gui);
+        e.draw(stamina_bar);
 
         e.render();
     }

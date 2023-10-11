@@ -2,6 +2,7 @@
 
 #include "../gfx/all_sf.h"
 #include "../ecs/all.h"
+#include "../map/all.h"
 #include <functional>
 
 /*
@@ -93,5 +94,27 @@ void WasdMovement(MovementState& state, Engine& e, T& po, float speed, WasdMode 
                 break;
         }
     }
+}
+
+template<typename T>
+void LockInMap(T& po, Map& m) {
+    // keep in borders of map
+
+    Vector2f mapSize = Vector2f((float)m.getWidth(), (float)m.getHeight()) * TILE_SIZEf;
+    if (po.getPosition().x + po.getSize().x > mapSize.x) {
+        po.setPosition(mapSize.x - po.getSize().x, po.getPosition().y);
+        po.setVelocity(0, po.getVelocity().y);
+    } else if (po.getPosition().x < -TILE_SIZEf/2) {
+        po.setPosition(-TILE_SIZEf/2, po.getPosition().y);
+        po.setVelocity(0, po.getVelocity().y);
+    }
+if (po.getPosition().y + po.getSize().y > mapSize.y) {
+        po.setPosition(po.getPosition().x, mapSize.y - po.getSize().y);
+        po.setVelocity(po.getVelocity().x, 0);
+    } else if (po.getPosition().y < -TILE_SIZEf/2) {
+        po.setPosition(po.getPosition().x, -TILE_SIZEf/2);
+        po.setVelocity(po.getVelocity().x, 0);
+    }
+
 }
 
