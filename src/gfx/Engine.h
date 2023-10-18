@@ -31,6 +31,7 @@ private:
 public:
     sf::Time deltaTime;
     float dt = 0;
+    sf::Font font; // default font
 
     Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory) : atlas(imageDirectory) {
         std::chrono::steady_clock::time_point beginw = std::chrono::steady_clock::now();
@@ -39,6 +40,11 @@ public:
         window.setKeyRepeatEnabled(false);
         std::chrono::steady_clock::time_point endw = std::chrono::steady_clock::now();
         std::cout << "Window created in " << std::chrono::duration_cast<std::chrono::milliseconds>(endw - beginw).count() << "ms" << std::endl;
+
+        std::chrono::steady_clock::time_point beginf = std::chrono::steady_clock::now();
+        font.loadFromFile("assets/fonts/arial.ttf");
+        std::chrono::steady_clock::time_point endf = std::chrono::steady_clock::now();
+        std::cout << "Font loaded in " << std::chrono::duration_cast<std::chrono::milliseconds>(endf - beginf).count() << "ms" << std::endl;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         atlas.build();

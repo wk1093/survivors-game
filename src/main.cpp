@@ -3,36 +3,14 @@
 #include "map/all.h"
 #include "test/wasd.h"
 #include "test/focused_camera.h"
+#include "dev/DevMenu.h"
 
-#define NEW_MAP 0
-#define EDIT_MAP 1
-#define EXIT_AFTER_EDIT 0
 
 int main() {
-    Engine e(1280, 720, "Survivors", "assets/img");
+    Engine e(1280, 720, "Dev", "assets/img");
     auto ecs = EntityComponentSystem(e);
-#if NEW_MAP
-    MapGenerator::generate("assets/map/test.map", 100, 100, "grass/sprite_00"); // creates a map filled with gravel, 100x100
-#endif
-    auto m = Map("assets/map/test.map", ecs);
-
-#if EDIT_MAP
-    MapEditor editor(e, m, ecs);
-    editor.launch(); // launches the editor. Once the editor is closed (ESC), the below code will run
-    e.reLaunch(1280, 720, "Survivors");
-#if EXIT_AFTER_EDIT
-    return 0;
-#endif
-#endif
-
-    auto view = e.getView();
-    auto gui = view;
-    view.zoom(0.1);
-    e.setView(view);
-
-
-
-    auto& player = ecs.makeObject<AnimatedPhysicsObject>("assets/img/char/sprite_00.png");
+    Map* map = nullptr;
+    auto& player = ecs.makeObject<AnimatedPhysicsObject, 1>("assets/img/char/sprite_00.png");
     player.addAnimation("idle_down", std::vector<std::string>{"char/sprite_00.png", "char/sprite_01.png"}, 0.2);
     player.addAnimation("walk_down", std::vector<std::string>{"char/sprite_02.png", "char/sprite_03.png"});
     player.addAnimation("idle_up", std::vector<std::string>{"char/sprite_04.png", "char/sprite_05.png"}, 0.2);
@@ -50,41 +28,54 @@ int main() {
     float stamina = 100; // 0 - 100
     MovementState state;
 
-    RectangleShape stamina_bar({1280, 30});
-    stamina_bar.setFillColor(Color::Red);
-    stamina_bar.setPosition(0, 0);
-
-    while (e.isOpen()) {
-        e.update();
-
-        // wasd movement
-        if (e.isKeyPressed(Keyboard::LControl) && stamina > 0) {
-            WasdMovement(state, e, player, sprint_speed, WasdMode::ACCELERATION, true);
-            stamina -= 0.25f * e.dt;
-        } else {
-            WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
-        }
-        LockInMap(player, m);
-        ecs.update();
-
-        e.clear();
-       view = FocusedCamera(e, player, FocusType::SOFT_CENTER, view);
-
-        ecs.draw(true);
-
-        if (stamina < 100) {
-            stamina += 0.10f * e.dt;
-        }
-        if (stamina > 100) {
-            stamina = 100;
+    while (true) {
+        bool dmr = DevMenu(e, ecs, &map);
+        if (dmr || map == nullptr) {
+            return 0;
         }
 
-        stamina_bar.setSize({stamina*12.8f, 30});
+        auto view = e.getView();
+        auto gui = view;
+        view.zoom(0.1);
+        e.setView(view);
 
-        e.setView(gui);
-        e.draw(stamina_bar);
+        RectangleShape stamina_bar({1280, 30});
+        stamina_bar.setFillColor(Color::Red);
+        stamina_bar.setPosition(0, 0);
 
-        e.render();
+        while (e.isOpen()) {
+            e.update();
+
+            // wasd movement
+            if (e.isKeyPressed(Keyboard::LControl) && stamina > 0) {
+                WasdMovement(state, e, player, sprint_speed, WasdMode::ACCELERATION, true);
+                stamina -= 0.25f * e.dt;
+            } else {
+                WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
+            }
+            LockInMap(player, *map);
+            ecs.update();
+
+            e.clear();
+            view = FocusedCamera(e, player, FocusType::SOFT_CENTER, view);
+
+            ecs.draw(true);
+
+            if (stamina < 100) {
+                stamina += 0.10f * e.dt;
+            }
+            if (stamina > 100) {
+                stamina = 100;
+            }
+
+            stamina_bar.setSize({stamina * 12.8f, 30});
+
+            e.setView(gui);
+            e.draw(stamina_bar);
+
+            e.render();
+        }
+        e.reLaunch(1280, 720, "Dev");
     }
 
 }

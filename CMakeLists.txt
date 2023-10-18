@@ -26,7 +26,9 @@ add_executable(survivors src/main.cpp
         src/map/Map.h
         src/map/Editor.h
         src/map/MapGenerator.h
-        src/map/all.h)
+        src/map/all.h
+        src/dev/DevMenu.h
+)
 target_link_libraries(survivors PRIVATE sfml-graphics)
 
 if (WIN32)

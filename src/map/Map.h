@@ -174,7 +174,7 @@ public:
             }
             // substr to remove "assets/img/tile/" and ".png" = substr(16, size-4
             std::string fn = engine.getAtlas().getFilename(((Object*)m_mapObject.obj)->getSprite().getTextureRect());
-            file << fn.substr(16, fn.size()-16-4) << " ";
+            file << fn.substr(16, fn.size()-16-4) << " " << ((Object*)m_mapObject.obj)->getRotation() << " ";
             if (m_mapObject.index % width == width-1) {
                 file << std::endl;
             }
