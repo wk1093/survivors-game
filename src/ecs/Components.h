@@ -144,15 +144,15 @@ public:
     }
 
 private:
-    bool collides(const sf::FloatRect& a, const sf::FloatRect& b) {
+    static bool collides(const sf::FloatRect& a, const sf::FloatRect& b) {
         return a.intersects(b);
     }
 
-    bool collides(const sf::FloatRect& a, const sf::Vector2f& b) {
+    static bool collides(const sf::FloatRect& a, const sf::Vector2f& b) {
         return a.contains(b);
     }
 
-    bool collides(const sf::FloatRect& a, const Object& b) {
+    static bool collides(const sf::FloatRect& a, const Object& b) {
         return a.intersects(b.getAABB());
     }
 };

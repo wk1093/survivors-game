@@ -70,7 +70,7 @@ public:
             if (engine.isKeyDown(sf::Keyboard::Left)) {
                 selection--;
                 if (selection < 0) {
-                    selection = tileTypes.size()-1;
+                    selection = (int)tileTypes.size()-1;
                 }
             }
             if (engine.isKeyDown(sf::Keyboard::Right)) {
@@ -213,8 +213,8 @@ public:
             engine.setView(toolbarView);
             engine.draw(toolbarBackground);
             engine.draw(selector);
-            for (int i = 0; i < tileSprites.size(); i++) {
-                engine.draw(tileSprites[i]);
+            for (const auto & tileSprite : tileSprites) {
+                engine.draw(tileSprite);
 
             }
             engine.render();

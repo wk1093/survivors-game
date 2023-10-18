@@ -11,7 +11,7 @@ public:
 
     Object(Engine& e, const std::string& path): m_engine(e), sprite(e.makeSprite(path)) { }
     Object(Engine& e, sf::Sprite s): m_engine(e), sprite(std::move(s)) { }
-    Object(Engine& e): m_engine(e), sprite() { }
+    explicit Object(Engine& e): m_engine(e), sprite() { }
 
     Engine& engine() {
         return m_engine;
