@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 #include "TextureAtlas.h"
 #include <chrono>
 
@@ -12,6 +13,8 @@ private:
     sf::RenderWindow window;
     TextureAtlas atlas;
     sf::Clock deltaClock;
+    sf::Clock clock;
+    std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
 
     // key states
     bool keyStates[256] = {false};
@@ -33,7 +36,7 @@ public:
     float dt = 0;
     sf::Font font; // default font
 
-    Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory) : atlas(imageDirectory) {
+    Engine(unsigned int width, unsigned int height, const char* title, const char* imageDirectory, const char* sndDirectory) : atlas(imageDirectory) {
         std::chrono::steady_clock::time_point beginw = std::chrono::steady_clock::now();
         window.create(sf::VideoMode(width, height), title, sf::Style::Titlebar | sf::Style::Close);
         window.setFramerateLimit(60);
@@ -41,15 +44,23 @@ public:
         std::chrono::steady_clock::time_point endw = std::chrono::steady_clock::now();
         std::cout << "Window created in " << std::chrono::duration_cast<std::chrono::milliseconds>(endw - beginw).count() << "ms" << std::endl;
 
-        std::chrono::steady_clock::time_point beginf = std::chrono::steady_clock::now();
         font.loadFromFile("assets/fonts/arial.ttf");
+        std::chrono::steady_clock::time_point beginf = std::chrono::steady_clock::now();
+        std::vector<std::string> files = recurseDirectory(sndDirectory, std::vector<std::string>{".wav", ".ogg"});
+        for (const std::string& file : files) {
+            sf::SoundBuffer buffer;
+            buffer.loadFromFile(file);
+            soundBuffers[file] = buffer;
+        }
         std::chrono::steady_clock::time_point endf = std::chrono::steady_clock::now();
-        std::cout << "Font loaded in " << std::chrono::duration_cast<std::chrono::milliseconds>(endf - beginf).count() << "ms" << std::endl;
+        std::cout << "Audio loaded in " << std::chrono::duration_cast<std::chrono::milliseconds>(endf - beginf).count() << "ms" << std::endl;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         atlas.build();
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::cout << "Atlas built in " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+        std::cout << "Texture atlas built in " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+
+        clock.restart();
     }
 
     bool isOpen() {
@@ -199,5 +210,21 @@ public:
     [[nodiscard]] float scrollDelta() const {
         return scroll;
     }
+
+    double getTime() {
+        return clock.getElapsedTime().asSeconds();
+    }
+
+    sf::SoundBuffer getSoundBuffer(const std::string& file) {
+        return soundBuffers[file];
+    }
+
+    sf::Sound makeSound(const std::string& file) {
+        sf::Sound sound;
+        sound.setBuffer(getSoundBuffer(file));
+        return sound;
+    }
+
+
 
 };

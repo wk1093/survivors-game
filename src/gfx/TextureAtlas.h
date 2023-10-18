@@ -6,11 +6,24 @@
 #include <unordered_map>
 
 
-std::vector<std::string> recurseDirectory(const char* directory, const std::string& extension = ".png") {
+std::vector<std::string> recurseDirectory(const char* directory) {
     std::vector<std::string> files;
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         if (entry.is_directory()) {
             std::vector<std::string> subFiles = recurseDirectory(entry.path().generic_string().c_str());
+            files.insert(files.end(), subFiles.begin(), subFiles.end());
+        } else {
+            files.push_back(entry.path().generic_string());
+        }
+    }
+    return files;
+}
+
+std::vector<std::string> recurseDirectory(const char* directory, const std::string& extension) {
+    std::vector<std::string> files;
+    for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+        if (entry.is_directory()) {
+            std::vector<std::string> subFiles = recurseDirectory(entry.path().generic_string().c_str(), extension);
             files.insert(files.end(), subFiles.begin(), subFiles.end());
         } else {
             if (entry.path().extension() == extension) {
@@ -19,7 +32,23 @@ std::vector<std::string> recurseDirectory(const char* directory, const std::stri
         }
     }
     return files;
+}
 
+std::vector<std::string> recurseDirectory(const char* directory, const std::vector<std::string>& extensions) {
+    std::vector<std::string> files;
+    for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+        if (entry.is_directory()) {
+            std::vector<std::string> subFiles = recurseDirectory(entry.path().generic_string().c_str(), extensions);
+            files.insert(files.end(), subFiles.begin(), subFiles.end());
+        } else {
+            for (const std::string& extension : extensions) {
+                if (entry.path().extension() == extension) {
+                    files.push_back(entry.path().generic_string());
+                }
+            }
+        }
+    }
+    return files;
 }
 
 class TextureAtlas {
@@ -32,7 +61,7 @@ public:
     explicit TextureAtlas(const char* directory): directory(directory) { }
 
     void build() {
-        std::vector<std::string> files = recurseDirectory(directory);
+        std::vector<std::string> files = recurseDirectory(directory, ".png");
         std::vector<sf::Image> images;
         for (const std::string& file : files) {
             sf::Image image;

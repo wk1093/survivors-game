@@ -28,8 +28,9 @@ add_executable(survivors src/main.cpp
         src/map/MapGenerator.h
         src/map/all.h
         src/dev/DevMenu.h
+        src/gmae/DiceRoller.h
 )
-target_link_libraries(survivors PRIVATE sfml-graphics)
+target_link_libraries(survivors PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
 
 if (WIN32)
     add_custom_command(

@@ -4,10 +4,11 @@
 #include "test/wasd.h"
 #include "test/focused_camera.h"
 #include "dev/DevMenu.h"
+#include "gmae/DiceRoller.h"
 
 
 int main() {
-    Engine e(1280, 720, "Dev", "assets/img");
+    Engine e(1280, 720, "Dev", "assets/img", "assets/snd");
     auto ecs = EntityComponentSystem(e);
     Map* map = nullptr;
     auto& player = ecs.makeObject<AnimatedPhysicsObject, 1>("assets/img/char/sprite_00.png");
@@ -27,6 +28,8 @@ int main() {
     float sprint_speed = 0.35;
     float stamina = 100; // 0 - 100
     MovementState state;
+    DiceRoller dr(e);
+    Sound roll = e.makeSound("assets/snd/dice1.wav");
 
     while (true) {
         bool dmr = DevMenu(e, ecs, &map);
@@ -53,6 +56,12 @@ int main() {
             } else {
                 WasdMovement(state, e, player, speed, WasdMode::ACCELERATION, true);
             }
+
+            if (e.isKeyDown(Keyboard::E)) {
+                dr.roll("keyedown"+std::to_string(e.getTime()), 20);
+                roll.play();
+            }
+
             LockInMap(player, *map);
             ecs.update();
 
@@ -72,6 +81,7 @@ int main() {
 
             e.setView(gui);
             e.draw(stamina_bar);
+            dr.draw();
 
             e.render();
         }
