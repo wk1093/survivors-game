@@ -44,7 +44,7 @@ public:
         std::chrono::steady_clock::time_point endw = std::chrono::steady_clock::now();
         std::cout << "Window created in " << std::chrono::duration_cast<std::chrono::milliseconds>(endw - beginw).count() << "ms" << std::endl;
 
-        font.loadFromFile("assets/fonts/arial.ttf");
+        font.loadFromFile("assets/fonts/undertale.ttf");
         std::chrono::steady_clock::time_point beginf = std::chrono::steady_clock::now();
         std::vector<std::string> files = recurseDirectory(sndDirectory, std::vector<std::string>{".wav", ".ogg"});
         for (const std::string& file : files) {

@@ -28,13 +28,15 @@ struct DiceElement {
         std::stringstream ss;
         ss << num << "d" << type;
         d = ss.str();
-        text = sf::Text(d, e.font, 20);
-        sprite = e.makeSprite("assets/img/dice.png");
+        text = sf::Text(d, e.font, (int)(32));
+        sprite = e.makeSprite("assets/img/dice1.png");
+        sprite.setScale(1.2, 1.2);
     }
 
     void update(Engine& e, std::mt19937& gen) {
         if (finished) return;
         std::uniform_int_distribution<> dis(1, type);
+        std::uniform_int_distribution<> dis6(1, 6);
         double time = e.getTime();
         if (time - startTime > _ROLL_FOR) {
             finished = true;
@@ -44,13 +46,12 @@ struct DiceElement {
                 result += dis(gen);
             }
             std::stringstream ss;
-            ss << d << " " << result;
+            ss << d << ": " << result;
             text.setString(ss.str());
         } else {
-            result = dis(gen);
-            std::stringstream ss;
-            ss << d << " " << result;
-            text.setString(ss.str());
+            // make it happen every once in a while
+            if ((int)(time * 1000) % 100 < 50) return;
+            sprite.setTextureRect(e.getRect("assets/img/dice" + std::to_string(dis6(gen)) + ".png"));
         }
     }
 
@@ -60,12 +61,12 @@ struct DiceElement {
             return;
         }
         if (finished) {
-            text.setPosition(0, i*30);
+            text.setPosition(0, i*32*1.2 - 6);
             e.draw(text);
         } else {
-            sprite.setPosition(0, i*30);
+            sprite.setPosition(0, i*32*1.2);
             e.draw(sprite);
-            text.setPosition(30, i*30);
+            text.setPosition(32*1.2, i*32*1.2 - 6);
             e.draw(text);
         }
     }
