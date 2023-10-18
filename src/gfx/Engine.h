@@ -215,7 +215,10 @@ public:
         return clock.getElapsedTime().asSeconds();
     }
 
-    sf::SoundBuffer getSoundBuffer(const std::string& file) {
+    sf::SoundBuffer& getSoundBuffer(const std::string& file) {
+        if (soundBuffers.find(file) == soundBuffers.end()) {
+            throw std::runtime_error("Sound buffer not found");
+        }
         return soundBuffers[file];
     }
 
