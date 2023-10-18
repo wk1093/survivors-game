@@ -40,12 +40,14 @@ private:
     std::vector<MapDescriptor> m_map;
     int width, height;
 public:
-    MapFile(const char* path) {
+    explicit MapFile(const char* path) {
         FILE* file = fopen(path, "r");
         if (file == nullptr) {
             std::cerr << "Failed to open map file: " << path << std::endl;
             throw std::runtime_error("Failed to open map file");
         }
+        width = 0;
+        height = 0;
         // fscanf %c then %s over and over again until EOF
         fscanf(file, "%d %d", &width, &height);
         char type;
@@ -80,7 +82,7 @@ private:
 
     static void consumeWhitespace(FILE* file) {
         char c;
-        while ((c = fgetc(file)) == ' ' || c == '\n' || c == '\t') {
+        while ((c = (char)fgetc(file)) == ' ' || c == '\n' || c == '\t') {
             // consume whitespace
         }
         ungetc(c, file);
